@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from . import local_settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-cyd$th%r(t+#&$%n@3lqow8ds__&09w_mkgg3@i#temuxmcthb'
+SECRET_KEY = local_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = local_settings.DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 
 
 # Application definition
@@ -85,11 +86,11 @@ LOGIN_URL = 'account:login'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'virgool',
-        'USER': 'mojtaba',
-        'PASSWORD': 'z69a71m74',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': local_settings.DATABASE_NAME,
+        'USER': local_settings.DATABASE_USER,
+        'PASSWORD': local_settings.DATABASE_PASSWORD,
+        'HOST': local_settings.DATABASE_HOST,
+        'PORT': local_settings.DATABASE_PORT,
     }
 }
 
