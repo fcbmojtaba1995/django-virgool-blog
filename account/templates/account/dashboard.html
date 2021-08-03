@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{ user.username }} | Dashboard {% endblock %}
+
+{% block js_files %}
+    <script src="{% static 'activity/js/relation_script.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+    {% if request.user.is_authenticated and request.user.id == user.id %}
+        <a href="{% url 'post:add_post' request.user.id %}">Add Post</a><br>
+        <a href="{% url 'account:edit_profile' request.user.id %}">Edit Profile</a><br>
+        <a href="{% url 'account:delete_account' request.user.id %}">Delete Account</a>
+    {% endif %}
+
+    <div class="text-center">
+        {% if user.profile.avatar.url is not None %}
+            <img src="{{ user.profile.avatar.url }}" alt="" width="100px" height="100px"
+                 class="rounded-circle">
+        {% else %}
+            <img src="https://www.vippng.com/png/full/416-4161690_empty-profile-picture-blank-avatar-image-circle.png"
+                 alt="" width="100px" height="100px" class="rounded-circle">
+        {% endif %}
+        <h4 class="text-center">{{ user.username|capfirst }}</h4>
+        {% if user.profile.bio is not None %}
+            <p class="text-center">{{ user.profile.bio }}</p>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+            {% if request.user.id != user.id and not is_following %}
+                <button id="following-btn" data-id="{{ user.id }}" class="btn btn-primary">Follow</button>
+            {% elif request.user.id != user.id and is_following %}
+                <button id="following-btn" data-id="{{ user.id }}" class="btn btn-warning">Unfollow</button>
+            {% endif %}
+        {% endif %}
+    </div><br>
+
+    {% for post in posts %}
+        <div class="card">
+            <div class="card-header">
+                <p>{{ post.created_time|timesince }} ago | read {{ post.reading_time }} minutes</p>
+                <p>Post Status: {{ post.status|lower|capfirst }}</p>
+            </div>
+            <div class="card-body">
+                <h3><a href="{{ post.get_absolute_url }}">{{ post.title|title }}</a></h3>
+                <p>{{ post.body|truncatewords:30|safe }}</p>
+            </div>
+        </div><br>
+    {% empty %}
+        <p>No exist post.</p>
+    {% endfor %}
+{% endblock %}

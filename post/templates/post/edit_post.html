@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %} Edit Post {% endblock %}
+{% block content %}
+    <form method="post" action="{% url 'post:edit_post' request.user.id post_id%}" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ form.media }} <!-- ckeditor thing -->
+        <input type="submit" value="Edit Post" class="btn btn-primary">
+    </form>
+{% endblock %}

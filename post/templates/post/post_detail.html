@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{ post.title }} {% endblock %}
+
+{% block js_files %}
+    <script src="{% static 'activity/js/vote_script.js' %}"></script>
+    <script src="{% static 'activity/js/show_reply_form.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+    {% if request.user.is_authenticated and request.user.id == post.author.id %}
+        <a href="{% url 'post:edit_post' post.author.id post.id %}">Edit Post</a>
+        <a href="{% url 'post:delete_post' post.author.id post.id %}">Delete Post</a>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            {% if post.author.profile.avatar.url is not None %}
+                <img src="{{ post.author.profile.avatar.url }}" alt="" width="50px" height="50px"
+                     class="rounded-circle">
+            {% else %}
+                <img src="https://www.vippng.com/png/full/416-4161690_empty-profile-picture-blank-avatar-image-circle.png"
+                     alt="" width="50px" height="50px" class="rounded-circle">
+            {% endif %}
+            {% if post.author.first_name and post.author.last_name %}
+                <p>{{ post.author.first_name }} {{ post.author.last_name }}</p>
+            {% else %}
+                <p>{{ post.author.username }}</p>
+            {% endif %}
+            <p>{{ post.created_time|timesince }} ago | read {{ post.reading_time }} minutes</p>
+            <p>Category: {{ post.category.name }}</p>
+            <p>{{ post_views }} views</p>
+        </div>
+        <div class="card-body">
+            <h3>{{ post.title|title }}</h3>
+            <p>{{ post.body|safe }}</p>
+        </div>
+    </div>
+    <hr>
+
+    {% if request.user.is_authenticated %}
+        {% if request.user.id != post.author.id and not is_like %}
+            <button id="like-btn" data-id="{{ post.id }}" class="btn btn-primary">Like</button>
+        {% elif request.user.id != post.author.id and is_like %}
+            <button id="like-btn" data-id="{{ post.id }}" class="btn btn-warning">Unlike</button>
+        {% endif %}
+    {% endif %}
+    <br><br>
+    <p>Total of likes: <b id="like-count">{{ post.like_count }}</b></p>
+
+    <hr>
+    {% with total=comments.count %}
+        <h3>Comments:</h3>
+        <p>This post has {{ total }} comment{{ total|pluralize }}.</p>
+    {% endwith %}
+    <br><br><br>
+
+    {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'activity:add_comment' post.id %}" class="col-md-6" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Send" class="btn btn-primary">
+        </form>
+    {% else %}
+        <p>For send comment you are logged in</p>
+        <a href="{% url 'account:login' %}">Login</a>
+        <small> or </small>
+        <a href="{% url 'account:register' %}">Register</a>
+
+    {% endif %}
+
+    <br><br><br><br>
+
+    {% if comments.count > 0 %}
+        {% for comment in comments %}
+            <div class="card">
+                <div class="card-header">
+                    <a href="{% url 'account:dashboard' comment.user.id %}">{{ comment.user }}</a>
+                    <button onclick="show_reply_form({{ comment.user.id }})" id="reply-link-{{ comment.user.id }}"
+                            class="btn btn-secondary">Reply
+                    </button>
+                    <br>
+                    <small>{{ comment.created_time|timesince }} ago</small>
+                </div>
+                <p class="card-body">{{ comment.body }}</p>
+
+                {% if request.user.is_authenticated %}
+                    <form method="post" action="{% url 'activity:add_reply' post.id comment.id %}" class="col-md-6"
+                          id="reply-form-{{ comment.user.id }}"
+                          style="display:none" novalidate>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Send" class="btn btn-primary">
+                    </form>
+                {% else %}
+                    <p>For send reply you are logged in</p>
+                    <a href="{% url 'account:login' %}">Login</a>
+                    <small> or </small>
+                    <a href="{% url 'account:register' %}">Register</a>
+
+                {% endif %}
+
+                {% for reply in comment.reply_comment.all %}
+                    <div class="card-footer p-3 m-4">
+                        <a href="{% url 'account:dashboard' reply.user.id %}">{{ reply.user }}</a>
+                        <small>reply to:</small>
+                        <a href="{% url 'account:dashboard' comment.user.id %}">{{ comment.user }}</a>
+                        <br>
+                        <small>{{ reply.created_time|timesince }} ago</small>
+                        <br><br>
+                        <p> {{ reply.body }}</p>
+                    </div>
+                {% endfor %}
+            </div><br>
+        {% empty %}
+            <p>There is no comment.</p>
+        {% endfor %}
+
+    {% endif %}
+
+{% endblock %}

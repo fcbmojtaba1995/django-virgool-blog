@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %} {{ category.name }} {% endblock %}
+{% block content %}
+    <div class="text-center">
+        <h2>{{ category.name }}</h2>
+        <p>Total number of posts: {{ category.posts_count }}</p>
+    </div>
+    {% for post in posts %}
+        <div class="card">
+            <div class="card-header">
+                {% if post.author.profile.avatar.url is not None %}
+                    <img src="{{ post.author.profile.avatar.url }}" alt="" width="50px" height="50px"
+                         class="rounded-circle">
+                {% else %}
+                    <img src="https://www.vippng.com/png/full/416-4161690_empty-profile-picture-blank-avatar-image-circle.png"
+                         alt="" width="50px" height="50px" class="rounded-circle">
+                {% endif %}
+                {% if post.author.first_name and post.author.last_name %}
+                    <a href="{% url 'account:dashboard' post.author.id %}">
+                        <p>{{ post.author.first_name }} {{ post.author.last_name }}</p>
+                    </a>
+                {% else %}
+                    <a href="{% url 'account:dashboard' post.author.id %}">
+                        <p>{{ post.author.username }}</p>
+                    </a>
+                {% endif %}
+                <p>{{ post.created_time|timesince }} ago | read {{ post.reading_time|time:"i" }} minutes</p>
+            </div>
+            <div class="card-body">
+                <h3><a href="{{ post.get_absolute_url }}">{{ post.title|title }}</a></h3>
+                <p>{{ post.body|truncatewords:30|safe }}</p>
+            </div>
+
+        </div><br>
+    {% endfor %}
+{% endblock %}

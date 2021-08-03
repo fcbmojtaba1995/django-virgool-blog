@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %} Categories {% endblock %}
+{% block content %}
+    <div class="card-group text-center">
+        {% for category in categories %}
+            <div class="card">
+                <a href="{% url 'category:posts_in_category' category.id category.name %}">
+                    <img src="{{ category.cover.url }}" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
